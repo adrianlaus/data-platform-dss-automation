@@ -54,4 +54,23 @@ def move_dataset_to_zone(project_key: str, dataset: str, target_flow_zone: str):
     
     return f'{dataset} moved to {target_flow_zone}'
         
+def list_snowflake_datasets(project_key):
+    project = client.get_project(project_key)
+    datasets = project.list_datasets()
     
+    snowflake_datasets = []
+    for dataset in datasets:
+        if dataset['type'] == 'Snowflake':
+            try:
+                d = {}
+                d['DSS_NAME'] = dataset['name']
+                d['CONNECTION'] = dataset['params']['connection']
+                d['DATABASE'] = dataset['params']['catalog']
+                d['SCHEMA'] = dataset['params']['schema']
+                d['TABLE'] = dataset['params']['table']
+
+                snowflake_datasets.append(d)
+            except Exception as e:
+                print(f"{dataset['name']} failed | Error: {e}")
+    
+    return snowflake_datasets    
